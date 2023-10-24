@@ -1,14 +1,12 @@
 use std::env;
 use std::process::Command;
 use std::process::exit;
+use html2text::from_read;
 use regex::Regex;
-
-extern crate fstrings;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let file_re = Regex::new(r".*.html").unwrap();
-
 
     if args.len() < 2 || !file_re.is_match(&args[1]) {
         println!("Please give a valid input file for translation");
@@ -51,6 +49,7 @@ fn main() {
         exit(0);
     } else if !file_check {
         println!("File does not exist");
+        exit(0);
     }
 
     let file_output = match Command::new("tidy")
@@ -67,13 +66,17 @@ fn main() {
 
     let output_string: String = String::from_utf8(file_output).unwrap();
     
-    let line_vec: Vec<&str> = output_string
+    let lines_vec: Vec<&str> = output_string
         .split("\n")
         .map(|e| e.trim())
         .collect();
 
-    for i in line_vec {
-        println!("{}", i);
-    }
+    let body = lines_vec
+        .into_iter()
+        .collect::<String>();
+
+    let byte_str_body: &[u8] = &body.as_bytes();
+    let body_as_text = from_read(byte_str_body, 20);
+    
 
 }
