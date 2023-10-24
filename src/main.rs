@@ -1,4 +1,4 @@
-use std::{env};
+use std::env;
 use std::process::Command;
 use std::process::exit;
 use regex::Regex;
