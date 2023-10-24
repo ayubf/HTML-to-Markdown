@@ -9,15 +9,11 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let file_re = Regex::new(r".*.html").unwrap();
 
-    if args.len() < 2 {
-        println!("Please give an input file for translation\n");
-        exit(0);
-    }
 
-    let Some(_) = file_re.captures(&args[1]) else {
+    if args.len() < 2 || !file_re.is_match(&args[1]) {
         println!("Please give a valid input file for translation");
         exit(0);
-    };
+    } 
 
     let tidy_check = match Command::new("tidy")
         .arg("-v")
@@ -34,10 +30,27 @@ fn main() {
                 false
             }
         };
+
+    let file_check = match Command::new("ls")
+        .arg(&args[1])
+        .output() {
+            Ok(o) => {
+                if o.status.success() {
+                    true
+                } else {
+                    false
+                }
+            }
+            Err(_) => {
+                false
+            }
+    };
     
     if !tidy_check {
         println!("Please install the latest version of Tidy.\nFor more info visit: https://www.html-tidy.org/#:~:text=Install");
         exit(0);
+    } else if !file_check {
+        println!("File does not exist");
     }
 
     let file_output = match Command::new("tidy")
