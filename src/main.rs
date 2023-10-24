@@ -27,13 +27,40 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let input_file_re = Regex::new(r".*.html").unwrap();
     let output_file_re = Regex::new(r".*.md").unwrap();
-    let input_file_path = &args[1];
-    let mut output_file_name: String = args[1][..5].to_string() + ".md";
 
-    if args.len() < 2 || !input_file_re.is_match(&input_file_path) {
-        println!("Please give a valid input file for translation");
+    if args.len() < 2 || args[1] == "-h" || args[1] == "--help" {
+        println!("
+            html_to_markdown [file...] [option...] [file...]
+            
+            File
+            ----
+            Must be valid .html file
+
+            Flags
+            -----
+            -p or --print:
+                Will output to console
+
+            -o or --output:
+                Will output to .md file of the same name as the input file
+            
+            -o [file...] or --output [file...]:
+                Will output to given file
+
+            Visit my github: https://github.com/ayubf
+        
+        ");
         exit(0);
-    } 
+    }
+
+    let input_file_path = &args[1];
+    
+    if !input_file_re.is_match(&input_file_path) {
+        println!("Please give a valid input file for translation\nUse html_to_markdown -h for help");
+        exit(0);
+    }
+
+    let mut output_file_name: String = args[1][..5].to_string() + ".md";
 
     let tidy_check = match Command::new("tidy")
         .arg("-v")
